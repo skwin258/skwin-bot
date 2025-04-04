@@ -22,7 +22,8 @@ def callback():
 
     try:
         handler.handle(body, signature)
-    except:
+    except Exception as e:
+        print("Webhook 錯誤：", e)
         abort(400)
     return 'OK'
 
@@ -36,14 +37,19 @@ def handle_message(event):
 以下是百家樂近10局開獎結果：{user_input}
 請預測下一局開莊或閒的機率，並說明預測依據與下注建議。
 """
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "你是百家樂走勢分析專家。"},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        reply = response['choices'][0]['message']['content']
+
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "你是百家樂走勢分析專家。"},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            reply = response['choices'][0]['message']['content']
+        except Exception as e:
+            print("🔴 OpenAI 回應錯誤：", e)
+            reply = "目前分析服務發生問題，請稍後再試。"
     else:
         reply = "請輸入格式為：莊 閒 閒 莊 閒（只包含莊或閒）"
 
